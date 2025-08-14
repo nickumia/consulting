@@ -10,6 +10,14 @@ def munge_name(first_name: str, last_name: str) -> str:
     last_name = last_name.replace(" ", "")
     return f"{first_name.lower()}_{last_name.lower()}"
 
+def munge_phone(phone: str) -> str:
+    """Clean and standardize phone number format."""
+    if not phone:
+        return ""
+    # Remove common non-numeric characters
+    phone = ''.join(c for c in str(phone) if c.isdigit())
+    return phone
+
 def try_read_csv(file_path: str):
     """Try reading a CSV file with different encodings."""
     encodings = ['utf-8-sig', 'latin-1', 'cp1252', 'utf-16']
@@ -55,9 +63,19 @@ def parse_contacts_to_dict(csv_path: str) -> Dict[str, Dict[str, str]]:
 
             # Clean and format names
             name = munge_name(row.get('First Name', '').strip(), row.get('Last Name', '').strip())
+            email = row.get('Email', '').strip()
+            
+            # Try different phone number fields in order of preference
+            phone_fields = ['Mobile', 'Phone', 'Work', 'Other']
+            phone = ""
+            for field in phone_fields:
+                if field in row and row[field]:
+                    phone = munge_phone(row[field])
+                    if phone:  # Use the first non-empty phone number found
+                        break
 
-            # Skip if both names are empty after cleaning
-            if not name:
+            # Skip if we don't have a valid phone number
+            if not phone:
                 continue
 
             # Clean up the row data
@@ -68,7 +86,7 @@ def parse_contacts_to_dict(csv_path: str) -> Dict[str, Dict[str, str]]:
             }
 
             # Add to contacts dictionary
-            contacts[name] = contact_data
+            contacts[phone] = contact_data
 
     except Exception as e:
         print(f"Error processing CSV file: {e}")
