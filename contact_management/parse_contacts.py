@@ -10,6 +10,26 @@ def munge_name(first_name: str, last_name: str) -> str:
     last_name = last_name.replace(" ", "")
     return f"{first_name.lower()}_{last_name.lower()}"
 
+def try_read_csv(file_path: str):
+    """Try reading a CSV file with different encodings."""
+    encodings = ['utf-8-sig', 'latin-1', 'cp1252', 'utf-16']
+
+    for encoding in encodings:
+        try:
+            with open(file_path, 'r', encoding=encoding) as f:
+                # Read a small chunk to verify the encoding works
+                start = f.read(1024)
+                f.seek(0)
+                # Now read the full file
+                return list(csv.DictReader(f)), encoding
+        except UnicodeDecodeError:
+            continue
+        except Exception as e:
+            print(f"Error with encoding {encoding}: {str(e)}")
+            continue
+
+    raise ValueError(f"Failed to read {file_path} with any of the attempted encodings")
+
 def parse_contacts_to_dict(csv_path: str) -> Dict[str, Dict[str, str]]:
     """
     Parse a CSV file into a dictionary with '{first}_{last}' as keys.
@@ -23,30 +43,32 @@ def parse_contacts_to_dict(csv_path: str) -> Dict[str, Dict[str, str]]:
     contacts = {}
 
     try:
-        with open(csv_path, 'r', encoding='utf-8-sig') as file:
-            reader = csv.DictReader(file)
-            
-            for row in reader:
-                # Skip rows that don't have at least first or last name
-                if not row.get('First Name') and not row.get('Last Name'):
-                    continue
-                    
-                # Clean and format names
-                name = munge_name(row.get('First Name').strip(), row.get('Last Name').strip())
+        # Try reading the CSV with different encodings
+        reader, used_encoding = try_read_csv(csv_path)
+        print(f"Successfully read file with encoding: {used_encoding}")
 
-                # Skip if both names are empty after cleaning
-                if not name:
-                    continue
+        # Process each row in the CSV
+        for row in reader:
+            # Skip rows that don't have at least first or last name
+            if not row.get('First Name') and not row.get('Last Name'):
+                continue
 
-                # Clean up the row data
-                contact_data = {
-                    k: v.strip() if isinstance(v, str) else v
-                    for k, v in row.items()
-                    if v and str(v).strip()  # Only include non-empty values
-                }
+            # Clean and format names
+            name = munge_name(row.get('First Name', '').strip(), row.get('Last Name', '').strip())
 
-                # Add to contacts dictionary
-                contacts[name] = contact_data
+            # Skip if both names are empty after cleaning
+            if not name:
+                continue
+
+            # Clean up the row data
+            contact_data = {
+                k: v.strip() if isinstance(v, str) else v
+                for k, v in row.items()
+                if v and str(v).strip()  # Only include non-empty values
+            }
+
+            # Add to contacts dictionary
+            contacts[name] = contact_data
 
     except Exception as e:
         print(f"Error processing CSV file: {e}")
