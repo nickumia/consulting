@@ -55,11 +55,19 @@ def parse_contacts_to_dict(csv_path: str) -> Dict[str, Dict[str, str]]:
     return contacts
 
 def main():
-    # Get the directory of the current script
-    script_dir = os.path.dirname(os.path.abspath(__file__))
+    import argparse
     
-    # Path to the contacts CSV file
-    csv_path = os.path.join(script_dir, 'Yahoo Contacts List - Sheet1.csv')
+    # Set up command line argument parsing
+    parser = argparse.ArgumentParser(description='Parse contacts from a CSV file.')
+    parser.add_argument('csv_file', help='Path to the CSV file containing contacts')
+    args = parser.parse_args()
+    
+    # Get the absolute path of the input file
+    csv_path = os.path.abspath(args.csv_file)
+    
+    if not os.path.exists(csv_path):
+        print(f"Error: File not found: {csv_path}")
+        return {}
     
     try:
         # Parse the contacts
