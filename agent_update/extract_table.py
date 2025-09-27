@@ -1,0 +1,54 @@
+import sys
+import os
+import pandas as pd
+from bs4 import BeautifulSoup
+
+def extract_table_from_html(html_file, output_file=None):
+    """
+    Extract table from HTML file and save as CSV.
+    
+    Args:
+        html_file (str): Path to the input HTML file
+        output_file (str, optional): Path to the output CSV file. 
+                                   If not provided, will use the input filename with .csv extension.
+    """
+    # Read the HTML file
+    with open(html_file, 'r', encoding='utf-8') as f:
+        html_content = f.read()
+    
+    # Parse HTML with BeautifulSoup
+    soup = BeautifulSoup(html_content, 'html.parser')
+    
+    # Find the main results table
+    table = soup.find('table', {'id': 'resultsGrid'})
+    
+    if not table:
+        print("Error: Could not find the results table in the HTML.")
+        sys.exit(1)
+    
+    # Convert HTML table to pandas DataFrame
+    df = pd.read_html(str(table))[0]
+    
+    # Set output filename if not provided
+    if not output_file:
+        base_name = os.path.splitext(html_file)[0]
+        output_file = f"{base_name}.csv"
+    
+    # Save to CSV
+    df.to_csv(output_file, index=False)
+    print(f"Table successfully extracted and saved to {output_file}")
+    return df
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python extract_table.py <input_html_file> [output_csv_file]")
+        sys.exit(1)
+    
+    input_file = sys.argv[1]
+    output_file = sys.argv[2] if len(sys.argv) > 2 else None
+    
+    if not os.path.exists(input_file):
+        print(f"Error: File '{input_file}' not found.")
+        sys.exit(1)
+    
+    extract_table_from_html(input_file, output_file)
