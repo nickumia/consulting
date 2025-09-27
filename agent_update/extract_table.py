@@ -2,15 +2,16 @@ import sys
 import os
 import pandas as pd
 from bs4 import BeautifulSoup
+from openpyxl import Workbook
 
 def extract_table_from_html(html_file, output_file=None):
     """
-    Extract table from HTML file and save as CSV.
+    Extract table from HTML file and save as Excel (.xlsx).
     
     Args:
         html_file (str): Path to the input HTML file
-        output_file (str, optional): Path to the output CSV file. 
-                                   If not provided, will use the input filename with .csv extension.
+        output_file (str, optional): Path to the output Excel file. 
+                                   If not provided, will use the input filename with .xlsx extension.
     """
     # Read the HTML file
     with open(html_file, 'r', encoding='utf-8') as f:
@@ -32,16 +33,16 @@ def extract_table_from_html(html_file, output_file=None):
     # Set output filename if not provided
     if not output_file:
         base_name = os.path.splitext(html_file)[0]
-        output_file = f"{base_name}.csv"
+        output_file = f"{base_name}.xlsx"
     
-    # Save to CSV
-    df.to_csv(output_file, index=False)
+    # Save to Excel
+    df.to_excel(output_file, index=False, engine='openpyxl')
     print(f"Table successfully extracted and saved to {output_file}")
     return df
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python extract_table.py <input_html_file> [output_csv_file]")
+        print("Usage: python extract_table.py <input_html_file> [output_xlsx_file]")
         sys.exit(1)
     
     input_file = sys.argv[1]
