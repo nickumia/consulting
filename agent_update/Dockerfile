@@ -10,16 +10,20 @@ COPY requirements.txt /app
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY extract_table.py /app
+# Copy all Python scripts
+COPY *.py /app/
 
 # Make port 80 available to the world outside this container
 EXPOSE 80
 
 # Define environment variable
-ENV NAME ExtractTable
+ENV NAME AgentTools
 
-# Run extract_table.py when the container launches
-ENTRYPOINT ["python", "extract_table.py"]
+# Make the script executable
+RUN chmod +x /app/process_agents.py
 
 # Default command (can be overridden)
+ENTRYPOINT ["python", "process_agents.py"]
+
+# Default arguments (show help)
 CMD ["--help"]

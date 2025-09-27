@@ -41,10 +41,10 @@ docker run --rm -v "${PWD}:/app" agent_update "MyWFG - Associate Search--0927202
 
 ```bash
 # For Windows Command Prompt
-docker run --rm -v "%CD%:/app" agent_update "MyWFG - Associate Search--09272025.html" "MyWFG_Output.xlsx"
+docker run --rm -v "%CD%:/app" agent_update pipeline old_agents.xlsx 'MyWFG - Associate Search--09272025.html' report.xlsx
 
 # For Windows PowerShell
-docker run --rm -v "${PWD}:/app" agent_update "MyWFG - Associate Search--09272025.html" "MyWFG_Output.xlsx"
+docker run --rm -v "${PWD}:/app" agent_update pipeline old_agents.xlsx 'MyWFG - Associate Search--09272025.html' report.xlsx
 ```
 
 ## Output
