@@ -19,6 +19,7 @@ Usage:
 """
 import sys
 import os
+from datetime import datetime
 from extract_table import extract_table_from_html
 from compare_agents import compare_agent_files
 
@@ -29,7 +30,9 @@ def process_pipeline(reference_file, new_html, output_file=None):
         base_name = os.path.splitext(new_html)[0]
         output_file = f"{base_name}_comparison.xlsx"
     
-    temp_file = "temp_extracted.xlsx"
+    # Create a timestamped temp filename
+    timestamp = datetime.now().strftime("%Y_%m_%d")
+    temp_file = f"agent_list_{timestamp}.xlsx"
     
     try:
         # Extract HTML to temporary file
