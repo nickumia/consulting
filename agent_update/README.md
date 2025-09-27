@@ -29,7 +29,7 @@ This tool updates agent information from HTML files and saves them as Excel (.xl
 
 2. Run the script:
    ```bash
-python extract_table.py input.html [output.xlsx]
+   python extract_table.py input.html [output.xlsx]
    ```
 
 ## Example
