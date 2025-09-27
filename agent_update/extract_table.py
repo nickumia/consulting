@@ -3,6 +3,7 @@ import os
 import pandas as pd
 from bs4 import BeautifulSoup
 from openpyxl import Workbook
+from io import StringIO
 
 def extract_table_from_html(html_file, output_file=None):
     """
@@ -27,8 +28,9 @@ def extract_table_from_html(html_file, output_file=None):
         print("Error: Could not find the results table in the HTML.")
         sys.exit(1)
     
-    # Convert HTML table to pandas DataFrame
-    df = pd.read_html(str(table))[0]
+    # Convert HTML table to pandas DataFrame using StringIO to avoid FutureWarning
+    html_string = str(table)
+    df = pd.read_html(StringIO(html_string))[0]
     
     # Set output filename if not provided
     if not output_file:
