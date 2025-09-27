@@ -58,6 +58,8 @@ def compare_agent_files(old_file, new_file, output_file=None):
     
     # Find updated agents (common agents with different data)
     updated_agents = []
+    updated_details = []  # To store detailed changes
+    
     for agent_code in common_agents.index:
         old_row = df_old.loc[agent_code]
         new_row = df_new.loc[agent_code]
@@ -66,13 +68,23 @@ def compare_agent_files(old_file, new_file, output_file=None):
         if not old_row.equals(new_row):
             # Create a combined row showing both old and new values
             combined_row = new_row.copy()
+            # Create a new row with 'Code #' as the first column
+            from collections import OrderedDict
+            detail_row = OrderedDict([('Code #', agent_code)])
+            # Add the rest of the columns
+            for col, value in new_row.items():
+                detail_row[col] = value
+            
             for col in new_row.index:
                 if col in old_row and old_row[col] != new_row[col]:
                     combined_row[col] = f"{old_row[col]} → {new_row[col]}"
+            
             updated_agents.append(combined_row)
+            updated_details.append(detail_row)
     
     # Convert list of updated agents to DataFrame
     df_updated = pd.DataFrame(updated_agents) if updated_agents else pd.DataFrame()
+    df_updated_details = pd.DataFrame(updated_details) if updated_details else pd.DataFrame()
     
     # Set output filename if not provided
     if not output_file:
@@ -88,6 +100,9 @@ def compare_agent_files(old_file, new_file, output_file=None):
             deleted_agents.to_excel(writer, sheet_name='Deleted Agents')
         if not df_updated.empty:
             df_updated.to_excel(writer, sheet_name='Updated Agents')
+            if not df_updated_details.empty:
+                # Add detailed changes as a new sheet
+                df_updated_details.to_excel(writer, sheet_name='Update Details', index=False)
     
     print(f"Comparison report generated: {output_file}")
     return output_file
